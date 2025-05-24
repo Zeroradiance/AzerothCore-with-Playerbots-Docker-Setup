@@ -85,16 +85,16 @@ if ask_user "Install modules?"; then
     cd modules
 
     function install_mod() {
-    local mod_name=$1
-    local repo_url=$2
+        local mod_name=$1
+        local repo_url=$2
 
-    if [ -d "${mod_name}" ]; then
-        echo "${mod_name} exists. Skipping..."
-    else
-        if ask_user "Install ${mod_name}?"; then
-            git clone "${repo_url}"
+        if [ -d "${mod_name}" ]; then
+            echo "${mod_name} exists. Skipping..."
+        else
+            if ask_user "Install ${mod_name}?"; then
+                git clone "${repo_url}"
+            fi
         fi
-    fi
     }
 
     install_mod "mod-aoe-loot" "https://github.com/azerothcore/mod-aoe-loot.git"
@@ -106,8 +106,13 @@ if ask_user "Install modules?"; then
 
 fi
 
-
 docker compose up -d --build
+
+# Fix permissions immediately after Docker build for Unraid compatibility
+echo "Fixing permissions for Unraid compatibility..."
+mkdir -p ../wotlk
+sudo chown -R 1000:1000 ../wotlk 2>/dev/null || chown -R 1000:1000 ../wotlk
+sudo chown -R 1000:1000 . 2>/dev/null || chown -R 1000:1000 .
 
 cd ..
 
@@ -138,7 +143,7 @@ function execute_sql() {
             else
                 cp "$custom_sql_file" "$temp_sql_file"
             fi
-            mysql -h "$ip_address" -uroot -ppassword "$db_name" < "$temp_sql_file"
+            mysql -h "$ip_address" -P 3307 -uroot -ppassword "$db_name" < "$temp_sql_file"
         done
     else
         echo "No SQL files found in $custom_sql_dir/$db_name, skipping..."
@@ -166,4 +171,3 @@ echo "4. Ctrl+p Ctrl+q will take you out of the world console."
 echo "5. Edit your gameclients realmlist.wtf and set it to $ip_address."
 echo "6. Now login to wow with 3.3.5a client!"
 echo "7. All config files are copied into the wotlk folder created with setup.sh."
-
