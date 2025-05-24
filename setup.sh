@@ -8,15 +8,15 @@ function ask_user() {
     esac
 }
 
-sed -i "s|^TZ=.*$|TZ=$(cat /etc/timezone)|" src/.env
+sed -i "s|^TZ=.*$|TZ=$(cat /etc/timezone)|" src/.env 2>/dev/null || true
 
-sudo apt update
+sudo apt update 2>/dev/null || true
 
 # Check if MySQL client is installed
 if ! command -v mysql &> /dev/null
 then
     echo "MySQL client is not installed. Installing mariadb-client now..."
-    sudo apt install -y mariadb-client
+    sudo apt install -y mariadb-client 2>/dev/null || echo "Note: MySQL client installation skipped (not available on this system)"
 else
     echo "MySQL client is already installed."
 fi
@@ -106,17 +106,23 @@ if ask_user "Install modules?"; then
 
 fi
 
+# Create required directories with correct permissions BEFORE Docker starts
+echo "Creating required directories with correct permissions..."
+mkdir -p env/dist/etc env/dist/logs ../wotlk
+sudo chown -R 1000:1000 env/dist ../wotlk 2>/dev/null || chown -R 1000:1000 env/dist ../wotlk
+
 docker compose up -d --build
 
 # Fix permissions immediately after Docker build for Unraid compatibility
 echo "Fixing permissions for Unraid compatibility..."
-mkdir -p ../wotlk
+mkdir -p ../wotlk env/dist/etc env/dist/logs
 sudo chown -R 1000:1000 ../wotlk 2>/dev/null || chown -R 1000:1000 ../wotlk
+sudo chown -R 1000:1000 env/dist 2>/dev/null || chown -R 1000:1000 env/dist
 sudo chown -R 1000:1000 . 2>/dev/null || chown -R 1000:1000 .
 
 cd ..
 
-sudo chown -R 1000:1000 wotlk
+sudo chown -R 1000:1000 wotlk 2>/dev/null || chown -R 1000:1000 wotlk
 
 # Directory for custom SQL files
 custom_sql_dir="src/sql"
@@ -143,7 +149,10 @@ function execute_sql() {
             else
                 cp "$custom_sql_file" "$temp_sql_file"
             fi
-            mysql -h "$ip_address" -P 3307 -uroot -ppassword "$db_name" < "$temp_sql_file"
+            # Use Docker exec instead of local mysql command for Unraid compatibility
+            docker exec ac-database mysql -u root -ppassword "$db_name" < "$temp_sql_file" 2>/dev/null || \
+            mysql -h "$ip_address" -P 3307 -uroot -ppassword "$db_name" < "$temp_sql_file" 2>/dev/null || \
+            echo "Note: Could not execute SQL file $custom_sql_file (MySQL client not available)"
         done
     else
         echo "No SQL files found in $custom_sql_dir/$db_name, skipping..."
@@ -157,7 +166,7 @@ execute_sql "$world"
 execute_sql "$chars"
 
 # Clean up temporary file
-rm "$temp_sql_file"
+rm -f "$temp_sql_file"
 
 echo ""
 echo "NOTE:"
