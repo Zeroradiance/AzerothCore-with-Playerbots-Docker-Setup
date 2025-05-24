@@ -1,34 +1,16 @@
 services:
-  # Permission fix init container
-  permission-fix:
-    image: alpine:latest
-    volumes:
-      - ./wotlk:/fix-wotlk
-      - .:/fix-root
-    command: |
-      sh -c "
-        echo 'Fixing permissions for AzerothCore...'
-        mkdir -p /fix-wotlk /fix-root/env/dist/etc /fix-root/env/dist/logs
-        chown -R 1000:1000 /fix-wotlk /fix-root/env /fix-root/wotlk || true
-        echo 'Permissions fixed successfully'
-      "
-    restart: "no"
-
   ac-database:
     ports: !override
       - "3307:3307"
     environment:
       TZ: ${TZ}
       MYSQL_TCP_PORT: "3307"
-    depends_on:
-      - permission-fix
 
   ac-authserver:
     environment:
       TZ: ${TZ}
       AC_LOGIN_DATABASE_INFO: "ac-database;3307;root;password;acore_auth"
-    depends_on:
-      - permission-fix
+    user: "1000:1000"
 
   ac-worldserver:
     environment:
@@ -39,8 +21,7 @@ services:
       AC_PLAYERBOTS_DATABASE_INFO: "ac-database;3307;root;password;acore_playerbots"
     volumes:
       - ./modules:/azerothcore/modules:rw
-    depends_on:
-      - permission-fix
+    user: "1000:1000"
 
   ac-db-import:
     environment:
@@ -48,9 +29,4 @@ services:
       AC_LOGIN_DATABASE_INFO: "ac-database;3307;root;password;acore_auth"
       AC_WORLD_DATABASE_INFO: "ac-database;3307;root;password;acore_world"
       AC_PLAYERBOTS_DATABASE_INFO: "ac-database;3307;root;password;acore_playerbots"
-    depends_on:
-      - permission-fix
-
-
-
-
+    user: "1000:1000"
