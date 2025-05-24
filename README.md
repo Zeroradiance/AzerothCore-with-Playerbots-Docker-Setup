@@ -1,4 +1,4 @@
-# AzerothCore with Playerbots Docker setup (installscript)
+# AzerothCore with Playerbots Docker setup (installscript) for UNRAID
 
 Script installing AzerothCore with Playerbots on Docker
 
