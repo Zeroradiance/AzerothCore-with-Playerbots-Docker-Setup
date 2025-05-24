@@ -1,7 +1,9 @@
+version: '3.9'              # ← Add version line
+
 services:
   ac-database:
-  ports:
-      - "3307:3306"  # Change host port from 3306 to 3307
+    ports:                  # ← Fix indentation (4 spaces)
+      - "3307:3306"
     environment:
       TZ: ${TZ}
 
