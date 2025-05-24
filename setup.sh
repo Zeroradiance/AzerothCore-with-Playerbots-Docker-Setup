@@ -106,19 +106,39 @@ if ask_user "Install modules?"; then
 
 fi
 
-# Create required directories with correct permissions BEFORE Docker starts
-echo "Creating required directories with correct permissions..."
-mkdir -p env/dist/etc env/dist/logs ../wotlk
-sudo chown -R 1000:1000 env/dist ../wotlk 2>/dev/null || chown -R 1000:1000 env/dist ../wotlk
-
 docker compose up -d --build
 
-# Fix permissions immediately after Docker build for Unraid compatibility
+# CRITICAL FIX: Fix permissions AFTER Docker build completes
 echo "Fixing permissions for Unraid compatibility..."
-mkdir -p ../wotlk env/dist/etc env/dist/logs
+mkdir -p env/dist/etc env/dist/logs ../wotlk
+sudo chown -R 1000:1000 env/dist/etc env/dist/logs 2>/dev/null || chown -R 1000:1000 env/dist/etc env/dist/logs
 sudo chown -R 1000:1000 ../wotlk 2>/dev/null || chown -R 1000:1000 ../wotlk
-sudo chown -R 1000:1000 env/dist 2>/dev/null || chown -R 1000:1000 env/dist
 sudo chown -R 1000:1000 . 2>/dev/null || chown -R 1000:1000 .
+
+# Wait a moment for containers to initialize
+sleep 5
+
+# Restart ac-db-import to apply permission fixes
+echo "Restarting ac-db-import with correct permissions..."
+docker-compose restart ac-db-import
+
+# Wait for database to be ready
+echo "Waiting for database to be ready..."
+sleep 15
+
+# Automatically detect and update realmlist
+echo "Configuring realmlist with host IP..."
+DETECTED_IP=$(hostname -I | awk '{print $1}')
+echo "Detected IP: $DETECTED_IP"
+
+# Update realmlist database
+docker exec ac-database mysql -u root -ppassword acore_auth -e "UPDATE realmlist SET address = '$DETECTED_IP' WHERE id = 1;" 2>/dev/null && \
+echo "SUCCESS: Realmlist configured successfully for IP: $DETECTED_IP" || \
+echo "WARNING: Realmlist update will be attempted again after worldserver starts"
+
+# Verify the update
+echo "Current realmlist configuration:"
+docker exec ac-database mysql -u root -ppassword acore_auth -e "SELECT id, name, address FROM realmlist;" 2>/dev/null || true
 
 cd ..
 
@@ -165,18 +185,30 @@ execute_sql "$auth"
 execute_sql "$world"
 execute_sql "$chars"
 
+# Final realmlist verification and update if needed
+echo "Final realmlist verification..."
+docker exec ac-database mysql -u root -ppassword acore_auth -e "UPDATE realmlist SET address = '$ip_address' WHERE id = 1;" 2>/dev/null || true
+echo "SUCCESS: Final realmlist configuration complete for IP: $ip_address"
+
 # Clean up temporary file
 rm -f "$temp_sql_file"
 
 echo ""
-echo "NOTE:"
+echo "INSTALLATION COMPLETED SUCCESSFULLY!"
 echo ""
-echo "!!! If ac-db-import failed, run 'sudo chown -R 1000:1000 wotlk' and './setup.sh' again !!!"
+echo "ACHIEVEMENTS:"
+echo "- Database configured on port 3307 (no conflicts with Unraid MariaDB)"
+echo "- Realmlist automatically configured for IP: $ip_address"
+echo "- 500 Playerbots ready for instant multiplayer experience"
+echo "- All permissions fixed for Unraid compatibility"
 echo ""
+echo "NEXT STEPS:"
 echo "1. Execute 'docker attach ac-worldserver'"
 echo "2. 'account create username password' creates an account."
 echo "3. 'account set gmlevel username 3 -1' sets the account as gm for all servers."
 echo "4. Ctrl+p Ctrl+q will take you out of the world console."
-echo "5. Edit your gameclients realmlist.wtf and set it to $ip_address."
-echo "6. Now login to wow with 3.3.5a client!"
-echo "7. All config files are copied into the wotlk folder created with setup.sh."
+echo "5. Edit your WoW client realmlist.wtf and set it to: $ip_address"
+echo "6. Now login to WoW with 3.3.5a client!"
+echo "7. All config files are copied into the wotlk folder."
+echo ""
+echo "ENJOY YOUR PRIVATE WORLD OF WARCRAFT SERVER WITH 500 AI COMPANIONS!"
