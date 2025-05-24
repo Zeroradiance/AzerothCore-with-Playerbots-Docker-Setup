@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AzerothCore with Playerbots - Unraid Docker Setup Guide</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #2980b9;
+            margin-top: 25px;
+        }
+        .code-block {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+        .highlight {
+            background-color: #f39c12;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .success {
+            background-color: #27ae60;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .warning {
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .info {
+            background-color: #3498db;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AzerothCore with Playerbots - Unraid Docker Setup Guide</h1>
+        
+        <div class="info">
+            <strong>Complete Automated Installation:</strong> This guide covers the enhanced AzerothCore with Playerbots setup that provides complete automation, Unraid optimization, and 500 AI companions with zero manual intervention.
+        </div>
+
+        <h2>📋 Table of Contents</h2>
+        <ul>
+            <li><a href="#overview">Project Overview</a></li>
+            <li><a href="#features">Key Features</a></li>
+            <li><a href="#requirements">Requirements</a></li>
+            <li><a href="#installation">Installation Process</a></li>
+            <li><a href="#structure">Project Structure</a></li>
+            <li><a href="#setup-script">Setup Script Details</a></li>
+            <li><a href="#docker-override">Docker Compose Override</a></li>
+            <li><a href="#management">Container Management</a></li>
+            <li><a href="#container-detachment">Container Detachment and Log Management</a></li>
+            <li><a href="#database-management">Database Management with Adminer</a></li>
+            <li><a href="#ah-bot-integration">Enhanced Auction House Bot Integration</a></li>
+            <li><a href="#playerbot-addons">Playerbot Control Addons</a></li>
+            <li><a href="#configuration">Configuration</a></li>
+            <li><a href="#troubleshooting">Troubleshooting</a></li>
+            <li><a href="#uninstall">Uninstallation</a></li>
+        </ul>
+
+        <h2 id="overview">🎯 Project Overview</h2>
+        <p>This project provides a <span class="highlight">complete automated installation</span> of AzerothCore with Playerbots optimized specifically for Unraid systems. It eliminates all manual configuration steps and provides a one-command installation experience.</p>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>🤖 500 AI Companions</h3>
+                <p>Instant multiplayer experience with intelligent AI bots that quest, dungeon, and interact naturally.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🔧 Unraid Optimized</h3>
+                <p>Database on port 3307, automatic permission fixes, and seamless integration with existing Unraid services.</p>
+            </div>
+            <div class="feature-card">
+                <h3>⚡ Complete Automation</h3>
+                <p>Zero manual intervention required - automatic IP detection, database configuration, and container management.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🛡️ Robust Setup</h3>
+                <p>Enhanced error handling, recovery mechanisms, and reliable container orchestration.</p>
+            </div>
+        </div>
+
+        <h2 id="features">✨ Key Features</h2>
+        <ul>
+            <li><strong>One-Command Installation:</strong> Complete setup with <code>./setup.sh</code></li>
+            <li><strong>Automatic Permission Fixing:</strong> Handles Unraid file ownership issues automatically</li>
+            <li><strong>Port 3307 Database:</strong> No conflicts with existing Unraid MariaDB</li>
+            <li><strong>Automatic Realmlist Configuration:</strong> Auto-detects and configures server IP</li>
+            <li><strong>500 Playerbots Ready:</strong> AI companions active immediately after installation</li>
+            <li><strong>Enhanced Auction House Bot:</strong> NathanHandley's improved AH Bot with realistic economy</li>
+            <li><strong>Error Recovery:</strong> Automatic container restart and permission fixes</li>
+            <li><strong>Complete WoW Experience:</strong> All zones, dungeons, quests, and content available</li>
+        </ul>
+
+        <h2 id="requirements">📋 Requirements</h2>
+        <table>
+            <tr>
+                <th>Component</th>
+                <th>Requirement</th>
+                <th>Notes</th>
+            </tr>
+            <tr>
+                <td>Operating System</td>
+                <td>Unraid 6.8+</td>
+                <td>Tested on Unraid 6.12</td>
+            </tr>
+            <tr>
+                <td>RAM</td>
+                <td>8GB minimum, 16GB recommended</td>
+                <td>For 500 Playerbots + AH Bot</td>
+            </tr>
+            <tr>
+                <td>Storage</td>
+                <td>50GB free space</td>
+                <td>For game data and databases</td>
+            </tr>
+            <tr>
+                <td>Docker</td>
+                <td>Docker and Docker Compose</td>
+                <td>Auto-installed by setup script</td>
+            </tr>
+            <tr>
+                <td>WoW Client</td>
+                <td>World of Warcraft 3.3.5a</td>
+                <td>Wrath of the Lich King expansion</td>
+            </tr>
+        </table>
+
+        <h2 id="installation">🚀 Installation Process</h2>
+        
+        <h3>Step 1: Download and Setup</h3>
+        <div class="code-block">
+# Navigate to your appdata directory
+cd /mnt/user/appdata/
+
+# Clone the enhanced repository
+git clone https://github.com/Zeroradiance/AzerothCore-with-Playerbots-Docker-Setup.git
+
+# Navigate into the directory
+cd AzerothCore-with-Playerbots-Docker-Setup
+
+# Make setup script executable
+chmod +x *.sh
+        </div>
+
+        <h3>Step 2: Run Automated Installation</h3>
+        <div class="code-block">
+# Run the complete automated setup
+./setup.sh
+        </div>
+
+        <h3>Step 3: Installation Prompts</h3>
+        <p>When prompted during installation, select:</p>
+        <ul>
+            <li><strong>Download AzerothCore Playerbots:</strong> y</li>
+            <li><strong>Install modules:</strong> y</li>
+            <li><strong>Install mod-aoe-loot:</strong> n (optional)</li>
+            <li><strong>Install mod-learn-spells:</strong> n (optional)</li>
+            <li><strong>Install mod-fireworks-on-level:</strong> n (optional)</li>
+            <li><strong>Install mod-individual-progression:</strong> n (optional)</li>
+        </ul>
+
+        <div class="success">
+            <strong>Installation Complete!</strong> The setup script will automatically handle permissions, database configuration, realmlist setup, and container orchestration. No manual intervention required!
+        </div>
+
+        <h2 id="structure">📁 Project Structure</h2>
+        <div class="code-block">
+AzerothCore-with-Playerbots-Docker-Setup/
+├── setup.sh                           # Main installation script
+├── src/
+│   ├── docker-compose.override.yml    # Unraid optimizations
+│   ├── .env                           # Environment configuration
+│   └── sql/                           # Custom SQL files
+│       └── acore_auth/
+│           └── update_realmlist.sql   # Automatic IP configuration
+├── azerothcore-wotlk/                 # Created during installation
+│   ├── docker-compose.yml            # Main Docker configuration
+│   ├── docker-compose.override.yml   # Applied overrides
+│   ├── modules/                       # AzerothCore modules
+│   │   ├── mod-playerbots/           # Playerbots AI module
+│   │   └── mod-ah-bot/               # Enhanced Auction House Bot
+│   └── env/                          # Runtime environment
+└── wotlk/                            # Configuration files
+    └── etc/                          # Server configurations
+        ├── worldserver.conf          # World server settings
+        ├── authserver.conf           # Auth server settings
+        ├── playerbots.conf           # Playerbots configuration
+        └── mod_ahbot.conf            # AH Bot configuration
+        </div>
+
+        <h2 id="setup-script">⚙️ Setup Script Details</h2>
+        <p>The enhanced <code>setup.sh</code> script performs the following automated tasks:</p>
+
+        <h3>System Preparation</h3>
+        <ul>
+            <li>Installs Docker and Docker Compose if not present</li>
+            <li>Installs MariaDB client for database operations</li>
+            <li>Sets up timezone configuration</li>
+        </ul>
+
+        <h3>AzerothCore Installation</h3>
+        <ul>
+            <li>Clones AzerothCore Playerbot branch from liyunfan1223</li>
+            <li>Downloads mod-playerbots module</li>
+            <li>Applies Unraid-specific configurations</li>
+            <li>Builds Docker containers with optimizations</li>
+        </ul>
+
+        <h3>Automated Fixes</h3>
+        <div class="code-block">
+# Permission fixes for Unraid compatibility
+echo "Fixing permissions for Unraid compatibility..."
+mkdir -p env/dist/etc env/dist/logs ../wotlk
+sudo chown -R 1000:1000 env/dist/etc env/dist/logs
+sudo chown -R 1000:1000 ../wotlk
+
+# Restart ac-db-import with correct permissions
+docker-compose restart ac-db-import
+
+# Automatic IP detection and realmlist configuration
+DETECTED_IP=$(hostname -I | awk '{print $1}')
+docker exec ac-database mysql -u root -ppassword acore_auth \
+  -e "UPDATE realmlist SET address = '$DETECTED_IP' WHERE id = 1;"
+        </div>
+
+        <h2 id="docker-override">🐳 Docker Compose Override</h2>
+        <p>The <code>docker-compose.override.yml</code> file provides Unraid-specific optimizations:</p>
+
+        <h3>Database Configuration</h3>
+        <div class="code-block">
+services:
+  ac-database:
+    ports: !override
+      - "3307:3307"              # Custom port to avoid conflicts
+    environment:
+      TZ: ${TZ}
+      MYSQL_TCP_PORT: "3307"     # Internal MySQL port configuration
+        </div>
+
+        <h3>User Mapping for Permissions</h3>
+        <div class="code-block">
+  ac-worldserver:
+    environment:
+      # Database connections on port 3307
+      AC_CHARACTER_DATABASE_INFO: "ac-database;3307;root;password;acore_characters"
+      AC_LOGIN_DATABASE_INFO: "ac-database;3307;root;password;acore_auth"
+      AC_WORLD_DATABASE_INFO: "ac-database;3307;root;password;acore_world"
+      AC_PLAYERBOTS_DATABASE_INFO: "ac-database;3307;root;password;acore_playerbots"
+    user: "1000:1000"            # Prevents permission issues
+        </div>
+
+        <h2 id="management">🔧 Container Management</h2>
+
+        <h3>Essential Docker Commands</h3>
+        <div class="code-block">
+# Navigate to the Docker directory
+cd /mnt/user/appdata/AzerothCore-with-Playerbots-Docker-Setup/azerothcore-wotlk
+
+# Check container status
+docker ps
+
+# View all containers (including stopped)
+docker ps -a
+
+# Check container logs
+docker logs ac-worldserver
+docker logs ac-database
+docker logs ac-authserver
+
+# Follow logs in real-time
+docker logs -f ac-worldserver
+        </div>
+
+        <h3>Container Control</h3>
+        <div class="code-block">
+# Start all services
+docker-compose up -d
+
+# Stop all services
+docker-compose down
+
+# Restart all services
+docker-compose restart
+
+# Restart specific service
+docker-compose restart ac-worldserver
+
+# Rebuild containers (after changes)
+docker-compose up -d --build
+        </div>
+
+        <h3>Database Operations</h3>
+        <div class="code-block">
+# Connect to database
+docker exec -it ac-database mysql -u root -ppassword
+
+# Check database on correct port
+docker exec ac-database mysql -u root -ppassword -P 3307 -e "SHOW DATABASES;"
+
+# Update realmlist manually if needed
+docker exec ac-database mysql -u root -ppassword acore_auth \
+  -e "UPDATE realmlist SET address = 'YOUR_IP' WHERE id = 1;"
+        </div>
+
+        <h2 id="container-detachment">🔌 Container Detachment and Log Management</h2>
+        <p>When working with your AzerothCore containers, especially the WorldServer console, proper detachment and log monitoring are essential skills.</p>
+
+        <h3>How to Safely Detach from Containers</h3>
+        <div class="warning">
+            <strong>CRITICAL:</strong> Never use Ctrl+C to exit from attached containers - this will stop the container! Always use the proper detachment sequence.
+        </div>
+
+        <h4>Proper Detachment Method</h4>
+        <div class="code-block">
+# Attach to WorldServer console
+docker attach ac-worldserver
+
+# Create admin account
+account create admin password123
+account set gmlevel admin 3 -1
+
+# SAFE DETACHMENT: Press Ctrl+P, then Ctrl+Q (NOT Ctrl+C!)
+# This detaches without stopping the container
+Ctrl+p Ctrl+q
+        </div>
+
+        <h4>Detaching from Database and AuthServer Containers</h4>
+        <p>While you typically won't need to attach to database or authserver containers directly, here's how to manage them safely:</p>
+
+        <div class="code-block">
+# Attach to database container (for direct MySQL access)
+docker attach ac-database
+
+# SAFE DETACHMENT: Use Ctrl+P, then Ctrl+Q
+Ctrl+p Ctrl+q
+
+# Attach to authserver container (for debugging)
+docker attach ac-authserver
+
+# SAFE DETACHMENT: Use Ctrl+P, then Ctrl+Q
+Ctrl+p Ctrl+q
+        </div>
+
+        <div class="info">
+            <strong>Note:</strong> Database and AuthServer containers typically run as background services. You usually interact with them through commands rather than direct attachment:
+            <ul>
+                <li><strong>Database:</strong> Use <code>docker exec ac-database mysql -u root -ppassword</code></li>
+                <li><strong>AuthServer:</strong> Monitor logs with <code>docker logs -f ac-authserver</code></li>
+            </ul>
+        </div>
+
+        <h4>Alternative Detachment Methods</h4>
+        <div class="code-block">
+# Attach with custom detach keys
+docker attach --detach-keys="ctrl-x" ac-worldserver
+# Now you can detach using Ctrl+X instead
+
+# Attach with signal proxy disabled (safer for some containers)
+docker attach --sig-proxy=false ac-worldserver
+# Now Ctrl+C will detach instead of stopping the container
+        </div>
+
+        <h3>Essential Log Management Commands</h3>
+
+        <h4>Basic Log Viewing for All Services</h4>
+        <div class="code-block">
+# View logs from WorldServer (most important)
+docker logs ac-worldserver
+
+# View logs from Database
+docker logs ac-database
+
+# View logs from AuthServer
+docker logs ac-authserver
+
+# View logs with timestamps
+docker logs -t ac-worldserver
+
+# Follow logs in real-time
+docker logs -f ac-worldserver
+
+# View last 100 lines
+docker logs --tail 100 ac-worldserver
+
+# View logs from last 2 hours
+docker logs --since 2h ac-worldserver
+        </div>
+
+        <h4>Advanced Log Filtering</h4>
+        <div class="code-block">
+# Search for errors in WorldServer logs
+docker logs ac-worldserver | grep -i error
+
+# Search for bot-related messages
+docker logs ac-worldserver | grep -i "bot.*logged in"
+
+# Count total bots logged in
+docker logs ac-worldserver | grep "Bot.*logged in" | wc -l
+
+# Check database connection issues
+docker logs ac-database | grep -i "connection"
+
+# Check authentication issues
+docker logs ac-authserver | grep -i "failed"
+
+# View logs between specific times
+docker logs --since 2025-05-24T10:00:00 --until 2025-05-24T18:00:00 ac-worldserver
+        </div>
+
+        <h4>Docker Compose Log Commands</h4>
+        <div class="code-block">
+# View logs from all services
+docker-compose logs
+
+# Follow logs from specific service
+docker-compose logs -f ac-worldserver
+
+# View logs from multiple services
+docker-compose logs ac-worldserver ac-database ac-authserver
+
+# View last 50 lines from all services
+docker-compose logs --tail 50
+
+# Follow logs from all services in real-time
+docker-compose logs -f
+        </div>
+
+        <h3>Container Status and Management</h3>
+
+        <h4>Check Container Status</h4>
+        <div class="code-block">
+# List all running containers
+docker ps
+
+# List all containers (including stopped)
+docker ps -a
+
+# Check specific AzerothCore containers
+docker ps --filter name=ac-
+
+# View container resource usage
+docker stats ac-worldserver ac-database ac-authserver
+
+# Check container health
+docker inspect ac-database | grep -A5 Health
+        </div>
+
+        <h4>Container Control Commands</h4>
+        <div class="code-block">
+# Start stopped container
+docker start ac-worldserver
+
+# Stop running container (graceful)
+docker stop ac-worldserver
+
+# Restart container
+docker restart ac-worldserver
+
+# Kill unresponsive container (last resort)
+docker kill ac-worldserver
+
+# Restart all AzerothCore services
+docker-compose restart
+        </div>
+
+        <h4>Execute Commands in Running Containers</h4>
+        <div class="code-block">
+# Execute command in WorldServer container
+docker exec ac-worldserver ls -la /azerothcore
+
+# Open interactive shell in WorldServer container
+docker exec -it ac-worldserver /bin/bash
+
+# Check database connectivity from WorldServer
+docker exec ac-worldserver mysql -h ac-database -u root -ppassword -e "SHOW DATABASES;"
+
+# Execute MySQL commands directly in database container
+docker exec ac-database mysql -u root -ppassword -e "SELECT * FROM acore_auth.realmlist;"
+
+# Check AuthServer configuration
+docker exec ac-authserver cat /azerothcore/env/dist/etc/authserver.conf
+        </div>
+
+        <h3>Monitoring Your 500 Playerbots</h3>
+        <div class="code-block">
+# Watch for bots logging in (real-time)
+docker logs -f ac-worldserver | grep "Bot.*logged in"
+
+# Check total bot count
+docker logs ac-worldserver | grep "Random Bots Stats" | tail -1
+
+# Monitor Playerbots database creation (from your log)
+docker logs ac-worldserver | grep "Database Playerbots"
+
+# Check for Playerbots Command Server
+docker logs ac-worldserver | grep "Command Server on port 8888"
+
+# Monitor server performance
+docker stats ac-worldserver ac-database ac-authserver
+
+# Check for any bot-related errors
+docker logs ac-worldserver | grep -i "bot.*error"
+        </div>
+
+        <h3>Understanding Your Container Logs</h3>
+        <p>Based on your successful installation, here's what to look for in each container:</p>
+
+        <h4>WorldServer Logs (Most Important)</h4>
+        <ul>
+            <li><strong>"WorldServer listening connections on port 8085"</strong> - Server ready for clients</li>
+            <li><strong>"Creating random bot characters..."</strong> - Playerbots being created</li>
+            <li><strong>"Starting Playerbots Command Server on port 8888"</strong> - Bot management ready</li>
+            <li><strong>"Database Playerbots is empty, auto populating it..."</strong> - First-time setup</li>
+        </ul>
+
+        <h4>Database Logs</h4>
+        <ul>
+            <li><strong>"DatabasePool 'acore_*' opened successfully"</strong> - Database connections healthy</li>
+            <li><strong>"Creating database 'acore_playerbots'"</strong> - Playerbots database setup</li>
+            <li><strong>No "Connection refused" errors</strong> - Database accessible</li>
+        </ul>
+
+        <h4>AuthServer Logs</h4>
+        <ul>
+            <li><strong>"AuthServer listening on port 3724"</strong> - Ready for client authentication</li>
+            <li><strong>No "Failed to connect" errors</strong> - Database connectivity good</li>
+        </ul>
+
+        <h3>Quick Reference Commands</h3>
+        <table>
+            <tr>
+                <th>Action</th>
+                <th>Command</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>Safe Detach</td>
+                <td>Ctrl+P Ctrl+Q</td>
+                <td>Detach without stopping container</td>
+            </tr>
+            <tr>
+                <td>View WorldServer Logs</td>
+                <td><code>docker logs -f ac-worldserver</code></td>
+                <td>Follow WorldServer logs in real-time</td>
+            </tr>
+            <tr>
+                <td>View Database Logs</td>
+                <td><code>docker logs -f ac-database</code></td>
+                <td>Follow database logs in real-time</td>
+            </tr>
+            <tr>
+                <td>View AuthServer Logs</td>
+                <td><code>docker logs -f ac-authserver</code></td>
+                <td>Follow AuthServer logs in real-time</td>
+            </tr>
+            <tr>
+                <td>Check Status</td>
+                <td><code>docker ps</code></td>
+                <td>List running containers</td>
+            </tr>
+            <tr>
+                <td>Restart All Services</td>
+                <td><code>docker-compose restart</code></td>
+                <td>Restart all AzerothCore services</td>
+            </tr>
+            <tr>
+                <td>Database Access</td>
+                <td><code>docker exec ac-database mysql -u root -ppassword</code></td>
+                <td>Direct MySQL access</td>
+            </tr>
+            <tr>
+                <td>Resource Usage</td>
+                <td><code>docker stats</code></td>
+                <td>Monitor CPU/memory usage</td>
+            </tr>
+        </table>
+
+        <h2 id="database-management">🗃️ Database Management with Adminer</h2>
+        <p>Adminer provides a web-based interface for managing your AzerothCore databases. This section covers how to connect to your AzerothCore database using an existing Adminer container or creating a new one.</p>
+
+        <h3>Method 1: Using Existing Adminer Container</h3>
+        <p>If you already have Adminer running on your Unraid system:</p>
+
+        <div class="code-block">
+# Find your AzerothCore network name
+docker inspect ac-database | grep NetworkMode
+# Should show: azerothcore-wotlk_ac-network
+
+# Connect your existing Adminer to the AzerothCore network
+docker network connect azerothcore-wotlk_ac-network your-adminer-container-name
+        </div>
+
+        <h3>Method 2: Create New Adminer Container</h3>
+        <div class="code-block">
+# Navigate to your AzerothCore directory
+cd /mnt/user/appdata/AzerothCore-with-Playerbots-Docker-Setup/azerothcore-wotlk
+
+# Start Adminer connected to AzerothCore network
+docker run -d --rm --name azerothcore-adminer \
+  --network azerothcore-wotlk_ac-network \
+  --link ac-database:db \
+  -p 8088:8080 \
+  adminer
+
+# Access Adminer at: http://YOUR_UNRAID_IP:8088
+        </div>
+
+        <h3>Adminer Connection Settings</h3>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Value</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>System</td>
+                <td>MySQL</td>
+                <td>Database type</td>
+            </tr>
+            <tr>
+                <td>Server</td>
+                <td>ac-database</td>
+                <td>Container name (or db if using --link)</td>
+            </tr>
+            <tr>
+                <td>Username</td>
+                <td>root</td>
+                <td>Database username</td>
+            </tr>
+            <tr>
+                <td>Password</td>
+                <td>password</td>
+                <td>Database password</td>
+            </tr>
+            <tr>
+                <td>Database</td>
+                <td>(leave empty)</td>
+                <td>Shows all databases</td>
+            </tr>
+        </table>
+
+        <div class="info">
+            <strong>Quick Access URL:</strong> You can bookmark this URL for direct access:<br>
+            <code>http://YOUR_UNRAID_IP:8088/?server=db&username=root&db=</code>
+        </div>
+
+        <h3>Available Databases</h3>
+        <p>Your AzerothCore installation includes these databases:</p>
+        <ul>
+            <li><strong>acore_auth:</strong> User accounts, realmlist, banned accounts</li>
+            <li><strong>acore_characters:</strong> Character data, guilds, items, mail</li>
+            <li><strong>acore_world:</strong> Game world data, NPCs, quests, loot tables</li>
+            <li><strong>acore_playerbots:</strong> Playerbots AI data, configurations, statistics</li>
+        </ul>
+
+        <h3>Common Database Operations</h3>
+
+        <h4>Update Realmlist IP</h4>
+        <div class="code-block">
+-- Navigate to acore_auth database
+-- Find realmlist table
+-- Edit the address field for id = 1
+-- Set to your Unraid IP address
+UPDATE realmlist SET address = 'YOUR_UNRAID_IP' WHERE id = 1;
+        </div>
+
+        <h4>Create GM Account</h4>
+        <div class="code-block">
+-- In acore_auth database, account table
+-- Find your account by username
+-- Note the account ID
+-- Then in account_access table, add GM privileges
+INSERT INTO account_access (id, gmlevel, RealmID) VALUES (ACCOUNT_ID, 3, -1);
+        </div>
+
+        <h4>Check Playerbots Statistics</h4>
+        <div class="code-block">
+-- In acore_playerbots database
+-- Check playerbots_random_bots table for bot list
+SELECT COUNT(*) as total_bots FROM playerbots_random_bots;
+SELECT race, class, COUNT(*) as count FROM playerbots_random_bots GROUP BY race, class;
+        </div>
+
+        <h3>Database Backup via Adminer</h3>
+        <div class="warning">
+            <strong>Important:</strong> Always backup your databases before making changes!
+        </div>
+
+        <ol>
+            <li>Connect to Adminer using the settings above</li>
+            <li>Select the database you want to backup</li>
+            <li>Click "Export" in the left menu</li>
+            <li>Choose "SQL" format</li>
+            <li>Select "Data" and "Structure"</li>
+            <li>Click "Export" to download the backup file</li>
+        </ol>
+
+        <h3>Alternative: Command Line Database Access</h3>
+        <div class="code-block">
+# Direct MySQL access via Docker
+docker exec -it ac-database mysql -u root -ppassword
+
+# Access specific database
+docker exec -it ac-database mysql -u root -ppassword acore_auth
+
+# Execute SQL file
+docker exec -i ac-database mysql -u root -ppassword acore_auth < backup.sql
+
+# Create database dump
+docker exec ac-database mysqldump -u root -ppassword acore_auth > auth_backup.sql
+        </div>
+
+        <h3>Remove Adminer When Done</h3>
+        <div class="code-block">
+# Stop and remove the Adminer container
+docker stop azerothcore-adminer
+
+# The container will be automatically removed due to --rm flag
+# Or manually remove if needed
+docker rm azerothcore-adminer
+        </div>
+
+        <h2 id="ah-bot-integration">🏪 Enhanced Auction House Bot Integration</h2>
+        <p>The Enhanced Auction House Bot (NathanHandley's mod-ah-bot) provides a realistic auction house economy with thousands of items, glyphs, and smart buying behavior. This integration creates a thriving marketplace for your 500 Playerbots.</p>
+
+        <div class="info">
+            <strong>Enhanced Features:</strong>
+            <ul>
+                <li><strong>Realistic auction behavior</strong> - Smart stack sizes and pricing</li>
+                <li><strong>Glyphs and crafted items</strong> - Complete item variety</li>
+                <li><strong>Smart buyer behavior</strong> - AH Bot purchases player items</li>
+                <li><strong>20,000+ active auctions</strong> - Full economy simulation</li>
+            </ul>
+        </div>
+
+        <h3>Step 1: Add AH Bot Module</h3>
+        <div class="code-block">
+# Navigate to your modules directory
+cd /mnt/user/appdata/AzerothCore-with-Playerbots-Docker-Setup/azerothcore-wotlk/modules
+
+# Clone NathanHandley's enhanced AH Bot
+git clone https://github.com/NathanHandley/mod-ah-bot.git
+
+# Verify the module is downloaded
+ls -la mod-ah-bot
+        </div>
+
+        <h3>Step 2: Rebuild Containers with AH Bot</h3>
+        <div class="code-block">
+# Navigate back to the main directory
+cd /mnt/user/appdata/AzerothCore-with-Playerbots-Docker-Setup/azerothcore-wotlk
+
+# Stop current containers
+docker-compose down
+
+# Rebuild with the new module (takes 15-30 minutes)
+docker-compose up -d --build
+
+# Monitor the build process
+docker-compose logs -f
+        </div>
+
+        <h3>Step 3: Create AH Bot Accounts</h3>
+        <div class="code-block">
+# Attach to WorldServer console
+docker attach ac-worldserver
+
+# Create AH Bot accounts
+account create ahbot1 password123
+account create ahbot2 password123
+account create ahbot3 password123
+
+# Detach safely
+Ctrl+p Ctrl+q
+        </div>
+
+        <h3>Step 4: Create AH Bot Characters</h3>
+        <p><strong>Connect to your WoW client and create characters:</strong></p>
+        <ol>
+            <li><strong>Login with account:</strong> <code>ahbot1</code>, <strong>password:</strong> <code>password123</code>
+                <ul><li>Create character named: <code>Auctionbota</code> (any race/class)</li><li>Log out immediately</li></ul>
+            </li>
+            <li><strong>Login with account:</strong> <code>ahbot2</code>, <strong>password:</strong> <code>password123</code>
+                <ul><li>Create character named: <code>Auctionbotb</code> (any race/class)</li><li>Log out immediately</li></ul>
+            </li>
+            <li><strong>Login with account:</strong> <code>ahbot3</code>, <strong>password:</strong> <code>password123</code>
+                <ul><li>Create character named: <code>Auctionbotc</code> (any race/class)</li><li>Log out immediately</li></ul>
+            </li>
+        </ol>
+
+        <div class="warning">
+            <strong>Important:</strong> Never use these characters for playing - they're AH Bot only! Numbers cannot be used in character names, so use letters instead.
+        </div>
+
+        <h3>Step 5: Get Character GUIDs</h3>
+        <div class="code-block">
+# Get the GUIDs for your AH Bot characters
+docker exec ac-database mysql -u root -ppassword acore_characters -e "SELECT guid, name, account FROM characters WHERE name LIKE 'Auctionbot%';"
+
+# Note down the GUID numbers (e.g., 1012, 1013, 1014)
+        </div>
+
+        <h3>Step 6: Copy and Configure AH Bot Config File</h3>
+        <div class="code-block">
+# Copy config file from container to host
+docker cp ac-worldserver:/azerothcore/modules/mod-ah-bot/conf/mod_ahbot.conf.dist /mnt/user/appdata/AzerothCore-with-Playerbots-Docker-Setup/wotlk/etc/
+
+# Create working config from template
+cd /mnt/user/appdata/AzerothCore-with-Playerbots-Docker-Setup/wotlk/etc
+cp mod_ahbot.conf.dist mod_ahbot.conf
+
+# Edit the configuration file
+nano mod_ahbot.conf
+        </div>
+
+        <h3>Step 7: Configure AH Bot Settings</h3>
+        <p><strong>Edit these key settings in <code>mod_ahbot.conf</code>:</strong></p>
+
+        <div class="code-block">
+# Enable AH Bot
+AuctionHouseBot.EnableSeller = 1
+AuctionHouseBot.EnableBuyer = 1
+
+# Set your character GUIDs (replace with your actual GUIDs)
+AuctionHouseBot.GUIDs = 1012,1013,1014
+
+# Set auction creation rate (600 for fast population)
+AuctionHouseBot.ItemsPerCycle = 600
+
+# Set minimum and maximum auctions
+AuctionHouseBot.MinItems = 20000
+AuctionHouseBot.MaxItems = 30000
+
+# Enable all crafted items (remove restrictions)
+AuctionHouseBot.DisabledCraftedItemIDs = ""
+        </div>
+
+        <h3>Step 8: Copy Config to Correct Docker Location</h3>
+        <div class="code-block">
+# Copy configured file to where Docker reads it
+docker cp /mnt/user/appdata/AzerothCore-with-Playerbots-Docker-Setup/wotlk/etc/mod_ahbot.conf ac-worldserver:/azerothcore/env/dist/etc/modules/
+
+# Also replace the .dist file being read
+docker cp /mnt/user/appdata/AzerothCore-with-Playerbots-Docker-Setup/wotlk/etc/mod_ahbot.conf ac-worldserver:/azerothcore/env/dist/etc/modules/mod_ahbot.conf.dist
+        </div>
+
+        <h3>Step 9: Set Characters Online</h3>
+        <div class="code-block">
+# Set AH Bot characters to online status (replace GUIDs with yours)
+docker exec ac-database mysql -u root -ppassword acore_characters -e "UPDATE characters SET online = 1 WHERE guid IN (1012,1013,1014);"
+
+# Verify characters are online
+docker exec ac-database mysql -u root -ppassword acore_characters -e "SELECT guid, name, online FROM characters WHERE guid IN (1012,1013,1014);"
+        </div>
+
+        <h3>Step 10: Restart and Verify</h3>
+        <div class="code-block">
+# Restart WorldServer to apply all changes
+cd /mnt/user/appdata/AzerothCore-with-Playerbots-Docker-Setup/azerothcore-wotlk
+docker-compose restart ac-worldserver
+
+# Monitor for config loading
+docker logs ac-worldserver | grep -i "mod_ahbot" | tail -5
+
+# Check auction count (should start growing)
+docker exec ac-database mysql -u root -ppassword acore_characters -e "SELECT COUNT(*) FROM auctionhouse;"
+        </div>
+
+        <h3>Expected Results</h3>
+        <div class="success">
+            <strong>After successful implementation:</strong>
+            <ul>
+                <li>20,000-30,000 active auctions - Full auction house experience</li>
+                <li>Glyphs and crafted items - Complete item variety</li>
+                <li>Realistic stack sizes - Authentic auction experience</li>
+                <li>Smart buyer behavior - AH Bot purchases player items</li>
+                <li>600 items per cycle - Fast auction house population</li>
+            </ul>
+        </div>
+
+        <h3>Verification Commands</h3>
+        <div class="code-block">
+# Monitor auction growth
+watch "docker exec ac-database mysql -u root -ppassword acore_characters -e 'SELECT COUNT(*) FROM auctionhouse;'"
+
+# Check for AH Bot activity
+docker logs ac-worldserver | grep -i "auction" | tail -10
+
+# Verify config is loaded correctly
+docker logs ac-worldserver | grep -i "mod_ahbot.conf"
+        </div>
+
+        <h3>Troubleshooting AH Bot</h3>
+        <div class="warning">
+            <strong>If no auctions appear:</strong>
+            <ol>
+                <li><strong>Check config loading:</strong> Look for "> mod_ahbot.conf" in logs (not .dist)</li>
+                <li><strong>Verify characters online:</strong> All three should show online=1</li>
+                <li><strong>Check GUIDs:</strong> Ensure correct GUIDs in config file</li>
+                <li><strong>Manual activation:</strong> Use <code>.ahbot reload</code> in WorldServer console</li>
+            </ol>
+        </div>
+
+        <h2 id="playerbot-addons">🎮 Playerbot Control Addons</h2>
+        <p>While you can control your 500 Playerbots using chat commands, dedicated addons provide a much more user-friendly interface for managing your AI companions.</p>
+
+        <h3>Available Playerbot Addons</h3>
+        <div class="info">
+            <strong>Two Main Addons Available:</strong>
+            <ul>
+                <li><strong>UnBot:</strong> Simple, lightweight addon (archived but functional)</li>
+                <li><strong>MultiBot:</strong> Advanced, feature-rich addon (actively developed)</li>
+            </ul>
+        </div>
+
+        <h3>MultiBot Addon (Recommended)</h3>
+        <p>MultiBot is the actively developed addon that provides comprehensive control over your Playerbots through an intuitive interface.</p>
+
+        <h4>Download and Installation</h4>
+        <div class="code-block">
+# Download MultiBot addon from:
+# https://github.com/liyunfan1223/mod-playerbots/tree/master/playerbot_addon
+
+# Extract to your WoW 3.3.5a addons folder:
+# wow_client_3.3.5a/Interface/AddOns/MultiBot/
+
+# Restart WoW client and enable the addon
+        </div>
+
+        <h4>MultiBot Features</h4>
+        <ul>
+            <li><strong>Visual Bot Management:</strong> Add/remove bots with button clicks</li>
+            <li><strong>Group Control:</strong> Manage entire bot groups simultaneously</li>
+            <li><strong>Combat Strategies:</strong> Set tank, DPS, and healer behaviors</li>
+            <li><strong>Formation Control:</strong> Follow, stay, or guard positions</li>
+            <li><strong>Talent Management:</strong> Reset and configure bot talents</li>
+            <li><strong>Equipment Control:</strong> Manage bot gear and items</li>
+            <li><strong>Quest Assistance:</strong> Bots help with quest objectives</li>
+        </ul>
+
+        <h3>Basic Bot Control Commands (Without Addon)</h3>
+        <p>If you prefer using chat commands or want to understand the underlying system:</p>
+
+        <h4>Adding and Removing Bots</h4>
+        <div class="code-block">
+# Add specific bots to your party
+.playerbots bot add name1,name2,name3
+
+# Remove specific bots
+.playerbots bot remove name1,name2,name3
+
+# Add all available bots
+.playerbots bot add *
+
+# Remove all bots
+.playerbots bot remove *
+
+# Initialize bots with rare gear (random bots only)
+.playerbots bot init=rare name1,name2,name3
+        </div>
+
+        <h4>Combat and Behavior Commands</h4>
+        <div class="code-block">
+# Make bots attack your target
+/p do attack my target
+
+# Make bots follow you
+/p do follow
+
+# Make bots stay in position
+/p do stay
+
+# Reset bot AI to defaults
+/p reset
+
+# Make bots passive (won't attack)
+/p nc +passive
+
+# Make bots aggressive (will attack)
+/p nc -passive
+        </div>
+
+        <h4>Utility Commands</h4>
+        <div class="code-block">
+# Show bot statistics
+/p stats
+
+# Make bot cast specific spell
+/p cast [spell name]
+
+# Make bot learn from trainer
+/p trainer learn
+
+# Summon bot to your location
+/p summon
+
+# Make bot release spirit when dead
+/p release
+
+# Make bot revive at spirit healer
+/p revive
+        </div>
+
+        <h3>Example Bot Control Macros</h3>
+
+        <h4>Flee Macro (Bots Follow Passively)</h4>
+        <div class="code-block">
+/p reset
+/p nc -stay,+follow,+passive
+/p co +passive
+/p do follow
+        </div>
+
+        <h4>Combat Macro (Bots Assist in Attack)</h4>
+        <div class="code-block">
+/p nc -stay,+follow,-passive
+/p co -passive
+/p do follow
+        </div>
+
+        <h4>Guard Position Macro (Bots Stay and Fight)</h4>
+        <div class="code-block">
+/p nc -follow,+stay,+passive
+/p co +passive
+/p do stay
+        </div>
+
+        <h3>Bot Management Through WorldServer Console</h3>
+        <p>Advanced bot management through the server console:</p>
+
+        <div class="code-block">
+# Attach to WorldServer console
+docker attach ac-worldserver
+
+# Check total bot count
+.playerbots stats
+
+# List all available bots
+.playerbots bot list
+
+# Create new random bots
+.playerbots bot add random
+
+# Set bot online/offline globally
+.playerbots bot online
+.playerbots bot offline
+
+# Detach safely from console
+Ctrl+p Ctrl+q
+        </div>
+
+        <h3>Bot Behavior Customization</h3>
+
+        <h4>Combat Roles</h4>
+        <table>
+            <tr>
+                <th>Command</th>
+                <th>Effect</th>
+                <th>Use Case</th>
+            </tr>
+            <tr>
+                <td><code>/p nc +tank</code></td>
+                <td>Bot acts as tank</td>
+                <td>Dungeons and group content</td>
+            </tr>
+            <tr>
+                <td><code>/p nc +heal</code></td>
+                <td>Bot focuses on healing</td>
+                <td>Support role in groups</td>
+            </tr>
+            <tr>
+                <td><code>/p nc +dps</code></td>
+                <td>Bot focuses on damage</td>
+                <td>Maximum damage output</td>
