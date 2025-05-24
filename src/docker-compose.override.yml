@@ -1,5 +1,7 @@
 services:
   ac-database:
+  ports:
+      - "3307:3306"  # Change host port from 3306 to 3307
     environment:
       TZ: ${TZ}
 
